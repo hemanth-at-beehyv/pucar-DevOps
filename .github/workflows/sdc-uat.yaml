@@ -32,26 +32,18 @@ jobs:
           tar -xvf oc-client.tar.gz
           sudo mv oc kubectl /usr/local/bin/
 
-      - name: Connect to VPN (HySecure)
-        run: |
-          hysecure login \
-            --user="${EVPN_USERNAME}" \
-            --password="${EVPN_PASSWORD}" \
-            --server="evpn.kerala.gov.in" \
-            --domain="Default"
-
       - name: Update Hosts File from Secret
         run: |
           echo "${HOSTS_ENTRIES}" | sudo tee -a /etc/hosts
           echo "Hosts file updated"
-          cat /etc/hosts
+
+      - name: Connect to VPN (HySecure)
+        run: |
+          hysecure login --user="${EVPN_USERNAME}" --password="${EVPN_PASSWORD}" --server="evpn.kerala.gov.in" --domain="Default"
 
       - name: Login to OpenShift Cluster
         run: |
-          oc login "${OCLI_LOGIN_SERVER}" \
-            -u "${OPENSHIFT_USERNAME}" \
-            -p "${OPENSHIFT_PASSWORD}" \
-            --insecure-skip-tls-verify=true
+          oc login "${OCLI_LOGIN_SERVER}" -u "${OPENSHIFT_USERNAME}" -p "${OPENSHIFT_PASSWORD}" --insecure-skip-tls-verify=true
 
       - name: Switch to Project (pucar-stg)
         run: |
