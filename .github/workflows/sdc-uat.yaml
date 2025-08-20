@@ -52,3 +52,11 @@ jobs:
       - name: Verify Pods in Project
         run: |
           kubectl get pods
+
+      - name: Logout From VPN (HySecure)
+        run: |
+          hysecure logout --user="${EVPN_USERNAME}"
+
+      - name: Logout from OpenShift Cluster
+        run: |
+          oc logout
