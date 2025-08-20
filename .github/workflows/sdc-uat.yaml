@@ -39,11 +39,11 @@ jobs:
 
       - name: Connect to VPN (HySecure)
         run: |
-          hysecure login --user="${EVPN_USERNAME}" --password="${EVPN_PASSWORD}" --server="evpn.kerala.gov.in" --domain="Default"
+          timeout 300s hysecure login --user="${EVPN_USERNAME}" --password="${EVPN_PASSWORD}" --server="evpn.kerala.gov.in" --domain="Default"
 
       - name: Login to OpenShift Cluster
         run: |
-          oc login "${OCLI_LOGIN_SERVER}" -u "${OPENSHIFT_USERNAME}" -p "${OPENSHIFT_PASSWORD}" --insecure-skip-tls-verify=true
+          timeout 300s oc login "${OCLI_LOGIN_SERVER}" -u "${OPENSHIFT_USERNAME}" -p "${OPENSHIFT_PASSWORD}" --insecure-skip-tls-verify=true
 
       - name: Switch to Project (pucar-stg)
         run: |
