@@ -1,0 +1,60 @@
+name: OpenShift VPN Login and Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-and-login:
+    runs-on: ubuntu-latest
+
+    env:
+      EVPN_USERNAME: ${{ secrets.EVPN_USERNAME }}
+      EVPN_PASSWORD: ${{ secrets.EVPN_PASSWORD }}
+      OCLI_LOGIN_SERVER: ${{ secrets.OCLI_LOGIN_SERVER }}
+      OPENSHIFT_USERNAME: ${{ secrets.OPENSHIFT_USERNAME }}
+      OPENSHIFT_PASSWORD: ${{ secrets.OPENSHIFT_PASSWORD }}
+      HOSTS_ENTRIES: ${{ vars.HOSTS_ENTRIES }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install HySecure VPN Client
+        run: |
+          wget -q https://evpn.kerala.gov.in/fes-bin/public/HySecure_Client_5.1.4.16.deb -O HySecure_Client.deb
+          sudo apt install -y ./HySecure_Client.deb
+
+      - name: Install OpenShift CLI (oc and kubectl)
+        run: |
+          wget -q https://github.com/openshift/okd/releases/download/4.5.0-0.okd-2020-07-14-153706-ga/openshift-client-linux-4.5.0-0.okd-2020-07-14-153706-ga.tar.gz -O oc-client.tar.gz
+          tar -xvf oc-client.tar.gz
+          sudo mv oc kubectl /usr/local/bin/
+
+      - name: Connect to VPN (HySecure)
+        run: |
+          hysecure login \
+            --user="${EVPN_USERNAME}" \
+            --password="${EVPN_PASSWORD}" \
+            --server="evpn.kerala.gov.in" \
+            --domain="Default"
+
+      - name: Update Hosts File from Secret
+        run: |
+          echo "${HOSTS_ENTRIES}" | sudo tee -a /etc/hosts
+          echo "Hosts file updated"
+          cat /etc/hosts
+
+      - name: Login to OpenShift Cluster
+        run: |
+          oc login "${OCLI_LOGIN_SERVER}" \
+            -u "${OPENSHIFT_USERNAME}" \
+            -p "${OPENSHIFT_PASSWORD}" \
+            --insecure-skip-tls-verify=true
+
+      - name: Switch to Project (pucar-stg)
+        run: |
+          oc project pucar-stg
+
+      - name: Verify Pods in Project
+        run: |
+          kubectl get pods
