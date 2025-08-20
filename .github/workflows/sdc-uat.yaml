@@ -54,9 +54,13 @@ jobs:
           kubectl get pods
 
       - name: Logout From VPN (HySecure)
+        if: always()
+        continue-on-error: true
         run: |
           hysecure logout --user="${EVPN_USERNAME}"
 
       - name: Logout from OpenShift Cluster
+        if: always()
+        continue-on-error: true
         run: |
           oc logout
