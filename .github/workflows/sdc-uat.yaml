@@ -20,11 +20,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install HySecure VPN Client
+        continue-on-error: true
         run: |
           wget -q https://evpn.kerala.gov.in/fes-bin/public/HySecure_Client_5.1.4.16.deb -O HySecure_Client.deb
           sudo apt install -y ./HySecure_Client.deb
 
       - name: Install OpenShift CLI (oc and kubectl)
+        continue-on-error: true
         run: |
           wget -q https://github.com/openshift/okd/releases/download/4.5.0-0.okd-2020-07-14-153706-ga/openshift-client-linux-4.5.0-0.okd-2020-07-14-153706-ga.tar.gz -O oc-client.tar.gz
           tar -xvf oc-client.tar.gz
